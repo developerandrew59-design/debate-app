@@ -1,0 +1,50 @@
+services:
+  note:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: bind
+        source: .
+        target: /debate 
+
+    depends_on:
+      - db
+
+        
+    environment:
+      - DATABASE_HOSTNAME=${DATABASE_HOSTNAME}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USERNAME=${DATABASE_USERNAME}  
+      
+    networks:
+      - app-network  
+       
+  db:
+    image: postgres:18
+
+    environment:
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+
+    volumes:
+      - postgres_data:/var/lib/postgresql 
+
+    ports:
+      - "5433:5432"   
+    networks:
+      - app-network  
+
+volumes:
+  postgres_data: 
+
+networks:
+  app-network:
+    driver: bridge     
+
+       
+   
+
+
