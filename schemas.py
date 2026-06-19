@@ -33,3 +33,5 @@ class Argumentreturn(Argumentcreate):
     account_id: Optional[int]
 
 
+class Tokendata(BaseModel):
+    id: int
