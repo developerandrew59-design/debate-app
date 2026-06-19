@@ -1,6 +1,6 @@
 from ast import mod
 from typing import List
-from fastapi import APIRouter,Depends, HTTPException,status
+from fastapi import APIRouter,Depends, HTTPException,status,Response
 from sqlalchemy.orm import Session
 import models
 from database import get_db
@@ -35,3 +35,19 @@ def get_one_argument(id:int,db:Session=Depends(get_db)):
                             detail=f"argument with id {id} not found")
 
     return argument
+
+@router.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT)
+def delete_argument(id:int,db:Session=Depends(get_db)):
+    argument_query=db.query(models.Argument).filter(models.Argument.id==id)
+    argument=argument_query.first()
+
+    if not argument:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"argument with id {id} not found")
+    
+    argument_query.delete(synchronize_session=False)
+
+    db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
