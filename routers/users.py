@@ -2,6 +2,7 @@ from ast import mod
 from typing import List
 from fastapi import APIRouter,Depends, HTTPException,status
 from sqlalchemy.orm import Session
+import Oauth2
 import models
 from utils import hash
 from database import get_db
@@ -24,13 +25,13 @@ def create_User(user:schemas.UserCreate,db:Session=Depends(get_db)):
     return user_dict
 
 @router.get("/",response_model=List[schemas.UserReturn])
-def get_all_users(db:Session=Depends(get_db)):
+def get_all_users(db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
     users=db.query(models.User).all()
 
     return users
 
 @router.get("/{id}",response_model=schemas.UserReturn)
-def get_one_user(id:int,db:Session=Depends(get_db)):
+def get_one_user(id:int,db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
     user=db.query(models.User).filter(models.User.id==id).first()
 
     if not user:

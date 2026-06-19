@@ -30,8 +30,13 @@ class Argumentcreate(BaseModel):
 class Argumentreturn(Argumentcreate):
     id: int
     created_at:datetime
-    account_id: Optional[int]
+    account_id: int
 
 
 class Tokendata(BaseModel):
     id: int
+
+
+class Token(BaseModel):
+    acess_token: str
+    token_type: str    
