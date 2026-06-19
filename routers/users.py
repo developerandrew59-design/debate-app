@@ -3,6 +3,7 @@ from typing import List
 from fastapi import APIRouter,Depends, HTTPException,status
 from sqlalchemy.orm import Session
 import models
+from utils import hash
 from database import get_db
 import schemas
 
@@ -13,6 +14,8 @@ router=APIRouter(
 
 @router.post("/",response_model=schemas.UserReturn,status_code=status.HTTP_201_CREATED)
 def create_User(user:schemas.UserCreate,db:Session=Depends(get_db)):
+    hashed_password=hash(user.password)
+    user.password=hashed_password
     user_dict=models.User(**user.model_dump())
     db.add(user_dict)
     db.commit()
