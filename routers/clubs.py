@@ -22,8 +22,10 @@ def create_club(club:schemas.Clubcreate,db:Session=Depends(get_db),current_user:
     return club_dict
 
 @router.get("/",response_model=List[schemas.Clubreturn])
-def get_all_clubs(db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
-    clubs=db.query(models.Debate).all()
+def get_all_clubs(lim:int=10,skip:int=0,search:str="",db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
+    clubs=db.query(models.Debate).filter(
+        models.Debate.name.contains(search)
+    ).limit(lim).offset(skip).all()
 
     return clubs
 
