@@ -25,8 +25,10 @@ def create_User(user:schemas.UserCreate,db:Session=Depends(get_db)):
     return user_dict
 
 @router.get("/",response_model=List[schemas.UserReturn])
-def get_all_users(db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
-    users=db.query(models.User).all()
+def get_all_users(lim:int=10,skip:int=0,search:str="",db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
+    users=db.query(models.User).filter(
+        models.User.email.contains(search)
+    ).limit(lim).offset(skip).all()
 
     return users
 
