@@ -14,7 +14,7 @@ router=APIRouter(
 
 @router.post("/",response_model=schemas.Argumentreturn,status_code=status.HTTP_201_CREATED)
 def create_argument(arg:schemas.Argumentcreate,db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
-    argument=models.Argument(**arg.model_dump())
+    argument=models.Argument(account_id=current_user.id,**arg.model_dump())
     db.add(argument)
     db.commit()
     db.refresh(argument)
@@ -22,9 +22,9 @@ def create_argument(arg:schemas.Argumentcreate,db:Session=Depends(get_db),curren
     return argument
 
 @router.get("/",response_model=List[schemas.Argumentreturn])
-def get_all_arguments(db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
-    arguments=db.query(models.Argument).all()
-
+def get_all_arguments(club_id:int,lim:int=10,skip:int=0,search:str="",db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
+    arguments=db.query(models.Argument).filter(models.Argument.club_id==club_id,
+                                               models.Argument.argument.contains(search)).limit(lim).offset(skip).all()
     return arguments
 
 @router.get("/{id}",response_model=schemas.Argumentreturn)
