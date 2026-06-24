@@ -24,4 +24,12 @@ class Argument(Base):
     club_id=Column(Integer,ForeignKey("club.id",ondelete="CASCADE"),nullable=False)
     account_id=Column(Integer,ForeignKey("accounts.id",ondelete="CASCADE"),nullable=True)
     parent_id=Column(Integer,ForeignKey("arguments.id",ondelete="CASCADE"),nullable=True)
-                
+
+
+class Vote(Base):
+    __tablename__="votes"
+    id=Column(Integer,primary_key=True,nullable=False)
+    account_id=Column(Integer,ForeignKey("accounts.id",ondelete="CASCADE"),nullable=False)
+    message_id=Column(Integer,ForeignKey("arguments.id",ondelete="CASCADE"),nullable=False) 
+    created_at=Column(TIMESTAMP(timezone=True),nullable=False,server_default="now()")
+
