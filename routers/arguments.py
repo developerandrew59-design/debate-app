@@ -23,9 +23,12 @@ def create_argument(arg:schemas.Argumentcreate,db:Session=Depends(get_db),curren
 
     return argument
 
-@router.get("/",response_model=List[schemas.Argumentreturn])
+@router.get("/",response_model=List[schemas.ArgumentreturnwithVotes])
 def get_all_arguments(club_id:int,lim:int=10,skip:int=0,search:str="",db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
-    arguments=db.query(models.Argument).filter(models.Argument.club_id==club_id,
+    arguments=db.query(models.Argument,
+                      func.sum(case((models.Vote.vote==True,1),else_=0)).label("upvotes"),
+                      func.sum(case((models.Vote.vote==False,1),else_=0)).label("downvotes")).join(models.Vote,models.Argument.id==models.Vote.argument_id,
+                                                                                                   isouter=True).group_by(models.Argument.id).filter(models.Argument.club_id==club_id,
                                                models.Argument.argument.contains(search)).limit(lim).offset(skip).all()
     return arguments
 
@@ -41,9 +44,7 @@ def get_one_argument(id:int,db:Session=Depends(get_db),current_user:int=Depends(
                             detail=f"argument with id {id} not found")
     
 
-    app_obj, up, down = argument
-    
-    return {"Argument": app_obj, "upvotes": up, "downvotes": down}
+    return argument
 
 @router.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT)
 def delete_argument(id:int,db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
@@ -53,6 +54,10 @@ def delete_argument(id:int,db:Session=Depends(get_db),current_user:int=Depends(O
     if not argument:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"argument with id {id} not found")
+    
+    if not argument.account_id==current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="this argument does not belong to you")
     
     argument_query.delete(synchronize_session=False)
 

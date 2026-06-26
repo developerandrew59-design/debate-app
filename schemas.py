@@ -37,7 +37,9 @@ class Argumentreturn(Argumentcreate):
 class ArgumentreturnwithVotes(BaseModel):
     Argument: Argumentreturn
     upvotes: int
-    downvotes: int    
+    downvotes: int  
+    class Config():
+        from_attributes=True  
 
 
 class Tokendata(BaseModel):
