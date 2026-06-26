@@ -21,6 +21,10 @@ def vote(vote:schemas.Vote,response:Response,db:Session=Depends(get_db),current_
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with id {vote.argument_id} not found")
     
+    if argument.account_id==current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail= "You cannot vote on your own argument")
+    
 
     vote_query=db.query(models.Vote).filter(models.Vote.argument_id==vote.argument_id,
                                             models.Vote.account_id==current_user.id)
