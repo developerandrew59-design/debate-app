@@ -34,10 +34,17 @@ def get_one_argument(id:int,db:Session=Depends(get_db),current_user:int=Depends(
     argument=db.query(models.Argument,
                       func.sum(case((models.Vote.vote==True,1),else_=0)).label("upvotes"),
                       func.sum(case((models.Vote.vote==False,1),else_=0)).label("downvotes")).join(models.Vote,models.Argument.id==models.Vote.argument_id,isouter=True).group_by(models.Argument.id).filter(models.Argument.id==id).first()
+    
 
     if not argument:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"argument with id {id} not found")
+    
+
+    arg_obj, up, down = argument
+    arg_obj.upvotes = up
+    arg_obj.downvotes = down
+    return arg_obj
 
     return argument
 
