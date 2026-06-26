@@ -29,7 +29,7 @@ def get_all_arguments(club_id:int,lim:int=10,skip:int=0,search:str="",db:Session
                                                models.Argument.argument.contains(search)).limit(lim).offset(skip).all()
     return arguments
 
-@router.get("/{id}",response_model=schemas.Argumentreturn)
+@router.get("/{id}",response_model=schemas.ArgumentreturnwithVotes)
 def get_one_argument(id:int,db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
     argument=db.query(models.Argument,
                       func.sum(case((models.Vote.vote==True,1),else_=0)).label("upvotes"),
@@ -41,12 +41,9 @@ def get_one_argument(id:int,db:Session=Depends(get_db),current_user:int=Depends(
                             detail=f"argument with id {id} not found")
     
 
-    arg_obj, up, down = argument
-    arg_obj.upvotes = up
-    arg_obj.downvotes = down
-    return arg_obj
-
-    return argument
+    app_obj, up, down = argument
+    
+    return {"Argument": app_obj, "upvotes": up, "downvotes": down}
 
 @router.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT)
 def delete_argument(id:int,db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
