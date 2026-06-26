@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 import models
 from database import engine
-from routers import users,clubs,arguments,auth
+from routers import users,clubs,arguments,auth,votes
 
 
 app=FastAPI()
@@ -12,9 +12,11 @@ app.include_router(users.router)
 app.include_router(clubs.router)
 app.include_router(arguments.router)
 app.include_router(auth.router)
+app.include_router(votes.router)
 
 
 
 @app.get("/")
 def start():
     return {"message":"something has gotta be wrong"}
+

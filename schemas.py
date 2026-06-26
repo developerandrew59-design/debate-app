@@ -4,6 +4,8 @@ from pydantic import BaseModel,EmailStr
 from datetime import datetime
 
 
+
+
 class Userbase(BaseModel):
     email: EmailStr
     password: str
@@ -40,3 +42,13 @@ class Tokendata(BaseModel):
 class Token(BaseModel):
     acess_token: str
     token_type: str    
+
+
+class Vote(BaseModel):
+    vote: bool
+    argument_id: int
+
+class VoteReturn(Vote):
+    id: int
+    account_id: int
+    created_at: datetime
