@@ -33,6 +33,8 @@ class Argumentreturn(Argumentcreate):
     id: int
     created_at:datetime
     account_id: int
+    upvotes: int
+    downvotes: int
 
 
 class Tokendata(BaseModel):
