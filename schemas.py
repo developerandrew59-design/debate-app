@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel,EmailStr
 from datetime import datetime
@@ -34,12 +34,21 @@ class Argumentreturn(Argumentcreate):
     created_at:datetime
     account_id: int
 
+class ArgumentreturnwithVotesnoreplies(BaseModel):
+    Argument: Argumentreturn
+    upvotes: int
+    downvotes: int 
+
+    class Config():
+        from_attributes= True   
+
 class ArgumentreturnwithVotes(BaseModel):
     Argument: Argumentreturn
+    counter_arguments: List[ArgumentreturnwithVotesnoreplies]
     upvotes: int
     downvotes: int  
     class Config():
-        from_attributes=True  
+        from_attributes= True  
 
 
 class Tokendata(BaseModel):

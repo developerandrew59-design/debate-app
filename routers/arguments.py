@@ -1,6 +1,7 @@
-from ast import mod
+from ast import arg, mod
 from tkinter import TRUE
 from typing import List
+from click import Argument
 from fastapi import APIRouter,Depends, HTTPException,status,Response
 from sqlalchemy.orm import Session
 from sqlalchemy import func,case, label
@@ -16,6 +17,11 @@ router=APIRouter(
 
 @router.post("/",response_model=schemas.Argumentreturn,status_code=status.HTTP_201_CREATED)
 def create_argument(arg:schemas.Argumentcreate,db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
+    if  arg.parent_id:
+        ad_arg=db.query(models.Argument).filter(models.Argument.id==arg.parent_id).first()
+        if not ad_arg:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail=f"reply to the argument {arg.parent_id} cannot be sent as it most likely does not exict")
     argument=models.Argument(account_id=current_user.id,**arg.model_dump())
     db.add(argument)
     db.commit()
@@ -23,7 +29,7 @@ def create_argument(arg:schemas.Argumentcreate,db:Session=Depends(get_db),curren
 
     return argument
 
-@router.get("/",response_model=List[schemas.ArgumentreturnwithVotes])
+@router.get("/",response_model=List[schemas.ArgumentreturnwithVotesnoreplies])
 def get_all_arguments(club_id:int,lim:int=10,skip:int=0,search:str="",db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
     arguments=db.query(models.Argument,
                       func.sum(case((models.Vote.vote==True,1),else_=0)).label("upvotes"),
@@ -39,12 +45,21 @@ def get_one_argument(id:int,db:Session=Depends(get_db),current_user:int=Depends(
                       func.sum(case((models.Vote.vote==False,1),else_=0)).label("downvotes")).join(models.Vote,models.Argument.id==models.Vote.argument_id,isouter=True).group_by(models.Argument.id).filter(models.Argument.id==id).first()
     
 
+    counter_argument=db.query(
+        models.Argument,
+        func.sum(case((models.Vote.vote==True,1),else_=0)).label("upvotes"),
+        func.sum(case((models.Vote.vote==False,1),else_=0)).label("downvotes")).join(models.Vote,
+                                                                                     models.Argument.id==models.Vote.argument_id,
+                                                                                     isouter=True).group_by(models.Argument.id).filter(models.Argument.parent_id==id).all()
+    
+
     if not argument:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"argument with id {id} not found")
-    
+    app_obj, up, down =argument
+    response= {"Argument": app_obj, "upvotes": up, "downvotes": down, "counter_arguments": counter_argument}
 
-    return argument
+    return response
 
 @router.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT)
 def delete_argument(id:int,db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
