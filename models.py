@@ -1,7 +1,12 @@
 import email
-
+import enum
 from database import Base
-from sqlalchemy import TIMESTAMP, Boolean, Column, Integer, String,ForeignKey
+from sqlalchemy import TIMESTAMP, Boolean, Column, Enum, Integer, String,ForeignKey
+
+class ClubType(str,enum.Enum):
+    public="public"
+    private="private"
+    one_v_one="1v1"
 
 class User(Base):
     __tablename__="accounts"
@@ -14,6 +19,7 @@ class Debate(Base):
     __tablename__="club"
     id=Column(Integer,primary_key=True,nullable=False)
     name=Column(String,nullable=False)
+    club_type=Column(Enum(ClubType),nullable=False,default=ClubType.private)
     created_at=Column(TIMESTAMP(timezone=True),nullable=False,server_default="now()")
 
 class Argument(Base):
