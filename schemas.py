@@ -1,5 +1,5 @@
 from typing import Optional, List
-
+from models import ClubType
 from pydantic import BaseModel,EmailStr
 from datetime import datetime
 
@@ -19,6 +19,7 @@ class UserReturn(UserCreate):
 
 class Clubcreate(BaseModel):
     name: str
+    club_type: ClubType= ClubType.public
 
 class Clubreturn(Clubcreate):
     id:int

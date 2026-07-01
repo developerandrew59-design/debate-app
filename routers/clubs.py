@@ -19,6 +19,12 @@ def create_club(club:schemas.Clubcreate,db:Session=Depends(get_db),current_user:
     db.commit()
     db.refresh(club_dict)
 
+    if  club.club_type != models.ClubType.public:
+        club_rows=models.Club_members(account_id=current_user.id,club_id=club_dict.id)
+        db.add(club_rows)
+        db.commit()
+        db.refresh()
+
     return club_dict
 
 @router.get("/",response_model=List[schemas.Clubreturn])
