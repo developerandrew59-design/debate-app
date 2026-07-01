@@ -69,3 +69,7 @@ class VoteReturn(Vote):
     id: int
     account_id: int
     created_at: datetime
+
+
+class InviteCreate(BaseModel):
+    account_id : int    

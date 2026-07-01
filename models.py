@@ -31,6 +31,7 @@ class Debate(Base):
     name=Column(String,nullable=False)
     club_type=Column(Enum(ClubType),nullable=False,default=ClubType.public)
     created_at=Column(TIMESTAMP(timezone=True),nullable=False,server_default="now()")
+    creator_id=Column(Integer,ForeignKey("account.id",ondelete="CASCADE"),nullable=True)
 
 class Argument(Base):
     __tablename__="arguments"
