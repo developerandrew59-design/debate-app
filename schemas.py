@@ -23,7 +23,9 @@ class Clubcreate(BaseModel):
 
 class Clubreturn(Clubcreate):
     id:int
-    created_at: datetime   
+    created_at: datetime  
+    creator_id: Optional[int]
+
 
 class Argumentcreate(BaseModel):
     argument:str

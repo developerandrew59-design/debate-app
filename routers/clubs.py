@@ -15,7 +15,7 @@ router=APIRouter(
 
 @router.post("/",response_model=schemas.Clubreturn,status_code=status.HTTP_201_CREATED)
 def create_club(club:schemas.Clubcreate,db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
-    club_dict=models.Debate(**club.model_dump())
+    club_dict=models.Debate(creator_id=current_user.id,**club.model_dump())
     db.add(club_dict)
     db.commit()
     db.refresh(club_dict)
@@ -55,4 +55,9 @@ def get_one_club(id:int,db:Session=Depends(get_db),current_user:int=Depends(Oaut
                             detail=f"club with id {id} not found")
     
     return club
+
+@router.post("/{club_id}/invite",status_code=status.HTTP_201_CREATED)
+def create_invite(club_id:int,invite:schemas.InviteCreate,db:Session=Depends(get_db),current_user:int=Depends(Oauth2.get_current_user)):
+    invite_dict=models.Club_Request(**invite.model_dump())
+    
 
